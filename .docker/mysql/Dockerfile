@@ -5,5 +5,5 @@ RUN usermod -u 1000 mysql
 #ADD initdb.sql /docker-entrypoint-initdb.d/
 COPY initdb.sql /docker-entrypoint-initdb.d/
 
-RUN chmod -R 775 /docker-entrypoint-initdb.d
+RUN chmod -R 777 /docker-entrypoint-initdb.d
 
