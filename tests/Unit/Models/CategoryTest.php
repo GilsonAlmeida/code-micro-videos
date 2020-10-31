@@ -1,19 +1,21 @@
 <?php
 
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 
 use App\Models\Category;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
+
+#Classe especifica - vendor/bin/phpunit tests/Unit/CategoryTest.php
+#Método  especifico em um arquivo - vendor/bin/phpunit --filter testIfUseTraits test/Unit/CategoryTest.php
+#Método  especifico em uma classe - vendor/bin/phpunit --filter CategoryTest::testIfUseTraits
 
 class CategoryTest extends TestCase
 {
 
-    use DatabaseMigrations;
 
     public function  testDateAttribute(){
 
@@ -35,7 +37,7 @@ class CategoryTest extends TestCase
     }
 
     public function testIfUseTraits(){
-        Genre::create(['name'=>'test']);
+        //Genre::create(['name'=>'test']);
 
         $traits = [
             SoftDeletes::class,Uuid::class
