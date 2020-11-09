@@ -37,7 +37,7 @@ class CategoryTest extends TestCase
     }
 
     public function testIfUseTraits(){
-        //Genre::create(['name'=>'test']);
+        //Category::create(['name'=>'test']);
 
         $traits = [
             SoftDeletes::class,Uuid::class
