@@ -123,8 +123,6 @@ class CategoryControllerTest extends TestCase
                 'description'=>'terror',
                 'is_active'=>true
             ]);
-
-
     }
 
     public function testDestroy()
