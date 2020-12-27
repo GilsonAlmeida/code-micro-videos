@@ -83,13 +83,10 @@ class CastMemberControllerTest extends TestCase
             'type'=>CastMember::TYPE_ACTOR
         ];
         $response = $this->assertUpdate($data,$data+['deleted_at'=>null]);
-
-
     }
 
     public function testDestroy()
     {
-
         $response = $this->json('DELETE',route('cast_members.destroy',['cast_member'=>$this->castMember->id]));
         $response->assertStatus(204);
         $this->assertNull(CastMember::find($this->castMember->id));
