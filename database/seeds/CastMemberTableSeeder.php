@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class CastMemberSeeder extends Seeder
+class CastMemberTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

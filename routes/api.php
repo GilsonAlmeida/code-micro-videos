@@ -18,8 +18,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['namespace'=> 'Api'],function () {
-    Route::resource('categories', 'CategoryController', ['except'=> ['create','edit']]);
-    Route::resource('genres', 'GenreController', ['except'=> ['create','edit']]);
-    Route::resource('cast_members', 'CastMemberController', ['except'=> ['create','edit']]);
+    $exceptCreateAndEdit=['except'=> ['create','edit']];
+
+    Route::resource('categories', 'CategoryController', $exceptCreateAndEdit);
+    Route::resource('genres', 'GenreController', $exceptCreateAndEdit);
+    Route::resource('cast_members', 'CastMemberController', $exceptCreateAndEdit);
+    Route::resource('videos', 'VideoController', $exceptCreateAndEdit);
 });
 
