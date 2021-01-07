@@ -3,9 +3,13 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 
+use App\Http\Controllers\Api\VideoController;
+use App\Models\Category;
+use App\Models\Genre;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-
+use Illuminate\Http\Request;
+use Tests\Exceptions\TestException;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
@@ -22,14 +26,15 @@ class VideoControllerTest extends TestCase
     protected function setUp():void
     {
         parent::setUp();
-        $this->video = factory(Video::class)->create();
+        $this->video = factory(Video::class)->create([
+            'opened'=>0,
+        ]);
         $this->sendData = [
             'title'=>'title',
             'description'=>'description',
             'year_launched'=>2010,
             'rating'=>Video::RATING_LIST[0],
             'duration'=>90,
-
         ];
     }
 
@@ -109,23 +114,162 @@ class VideoControllerTest extends TestCase
         $this->assertInvalidationUpdateAction($data,'in');
     }
 
-    public function testStore()
-    {
-        $this->assertStore($this->sendData,$this->sendData+['opened'=>0]);
 
-    }
-//
-    public function testUpdate()
+
+    public function testSave()
     {
-        $this->assertUpdate($this->sendData,$this->sendData+['opened'=>0]);
+        $category = factory(Category::class)->create();
+        $genre = factory(Genre::class)->create();
+        $data = [
+            [
+                'send_data' => $this->sendData + ['categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'test_data' => $this->sendData + ['opened' => 0],
+            ],
+            [
+                'send_data' => $this->sendData + ['opened' => 1, 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'test_data' => $this->sendData + ['opened' => 1],
+            ],
+            [
+                'send_data' => $this->sendData + ['rating' => Video::RATING_LIST[1], 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'test_data' => $this->sendData + ['rating' => Video::RATING_LIST[1]],
+            ],
+        ];
+
+        foreach ($data as $value) {
+            $response = $this->assertStore(
+                $value['send_data'],
+                $value['test_data'] + ['deleted_at' => null]
+            );
+
+            $response = $this->assertUpdate(
+                $value['send_data'],
+                $value['test_data'] + ['deleted_at' => null]
+            );
+
+        }
+    }
+
+    public function testRollbackStore()
+    {
+        $controller = \Mockery::mock(VideoController::class)
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+
+        $controller
+            ->shouldReceive('validate')
+            ->withAnyArgs()
+            ->andReturn($this->sendData);
+
+        $controller
+            ->shouldReceive('rulesStore')
+            ->withAnyArgs()
+            ->andReturn([]);
+
+        $controller
+            ->shouldReceive('handleRelations')
+            ->once()
+            ->andThrow(new TestException());
+
+        $request = \Mockery::mock(Request::class);
+
+        try {
+            $controller->store($request);
+        } catch (TestException $exception) {
+            $this->assertCount(1, Video::all());
+        }
     }
 //
+//    public function testRollbackUpdate()
+//    {
+//        $controller = \Mockery::mock(VideoController::class)
+//            ->makePartial()
+//            ->shouldAllowMockingProtectedMethods();
+//
+//        $controller
+//            ->shouldReceive('validate')
+//            ->withAnyArgs()
+//            ->andReturn($this->sendData);
+//
+//        $controller
+//            ->shouldReceive('rulesUpdate')
+//            ->withAnyArgs()
+//            ->andReturn([]);
+//
+//        $controller
+//            ->shouldReceive('handleRelations')
+//            ->once()
+//            ->andThrow(new TestException());
+//
+//        $request = \Mockery::mock(Request::class);
+//
+//        try {
+//            $controller->update($request, $this->video->id);
+//        } catch (TestException $exception) {
+//            $this->assertCount(1, Video::all());
+//        }
+//    }
+
+//    public function testDelete()
+//    {
+//        /** @var Video $video */
+//        $video = factory(Video::class)->create();
+//
+//        $id = $video->id;
+//
+//        $response = $this->json(
+//            'DELETE',
+//            route('api.videos.destroy', ['video' => $id])
+//        );
+//
+//        $response->assertStatus(204);
+//
+//        $response = $this->json(
+//            'GET',
+//            route('api.videos.show', ['video' => $id])
+//        );
+//
+//        $response->assertStatus(404);
+//
+//
+//        $this->assertNull(Video::find($id));
+//        $this->assertNotNull(Video::withTrashed()->find($id));
+//    }
     public function testDestroy()
     {
         $response = $this->json('DELETE',route('videos.destroy',['video'=>$this->video->id]));
         $response->assertStatus(204);
         $this->assertNull(Video::find($this->video->id));
         $this->assertNotNull(Video::withTrashed()->find($this->video->id));
+    }
+
+    public function testInvalidationCategoriesIdField() {
+
+        $data = [
+            'categories_id' =>'a'
+        ];
+        $this->assertInvalidationStoreAction($data,'array');
+        $this->assertInvalidationUpdateAction($data,'array');
+
+        $data = [
+            'categories_id' =>[100]
+        ];
+        $this->assertInvalidationStoreAction($data,'exists');
+        $this->assertInvalidationUpdateAction($data,'exists');
+    }
+
+    public function testInvalidationGenresIdField() {
+
+        $data = [
+            'genres_id' =>'a',
+        ];
+        $this->assertInvalidationStoreAction($data,'array');
+        $this->assertInvalidationUpdateAction($data,'array');
+
+        $data = [
+            'genres_id' =>[100],
+        ];
+        $this->assertInvalidationStoreAction($data,'exists');
+        $this->assertInvalidationUpdateAction($data,'exists');
     }
 
 
