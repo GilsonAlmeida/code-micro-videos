@@ -24,7 +24,7 @@ class Video extends Model
     protected $dates =['deleted_at'];
     protected $casts = [
         'id'=>'string',
-        'opned'=>'boolean',
+        'opened'=>'boolean',
         'year_launched'=>'integer',
         'duration'=>'integer'
     ];
