@@ -40,8 +40,9 @@ class GenreController extends BasicCrudController
         $obj=\DB::transaction(function () use ($self,$request,$obj,$validatedData){
             $obj->update($validatedData);
             $self->handleRelations($obj,$request);
+            return $obj;
         });
-        //$obj->refresh();
+        $obj->refresh();
         return $obj;
     }
 

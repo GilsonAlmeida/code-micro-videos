@@ -123,12 +123,12 @@ class VideoControllerTest extends TestCase
         $genre->categories()->sync($category->id);
         $data = [
             [
-                'send_data' => $this->sendData + ['categories_id' => [$category->id], 'genres_id' => [$genre->id]],
-                'test_data' => $this->sendData + ['opened' => 0],
+                'send_data' => $this->sendData + ['opened' => false,'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'test_data' => $this->sendData + ['opened' => false],
             ],
             [
-                'send_data' => $this->sendData + ['opened' => 1, 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
-                'test_data' => $this->sendData + ['opened' => 1],
+                'send_data' => $this->sendData + ['opened' => true, 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'test_data' => $this->sendData + ['opened' => true],
             ],
             [
                 'send_data' => $this->sendData + ['rating' => Video::RATING_LIST[1], 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
@@ -179,62 +179,37 @@ class VideoControllerTest extends TestCase
             $this->assertCount(1, Video::all());
         }
     }
-//
-//    public function testRollbackUpdate()
-//    {
-//        $controller = \Mockery::mock(VideoController::class)
-//            ->makePartial()
-//            ->shouldAllowMockingProtectedMethods();
-//
-//        $controller
-//            ->shouldReceive('validate')
-//            ->withAnyArgs()
-//            ->andReturn($this->sendData);
-//
-//        $controller
-//            ->shouldReceive('rulesUpdate')
-//            ->withAnyArgs()
-//            ->andReturn([]);
-//
-//        $controller
-//            ->shouldReceive('handleRelations')
-//            ->once()
-//            ->andThrow(new TestException());
-//
-//        $request = \Mockery::mock(Request::class);
-//
-//        try {
-//            $controller->update($request, $this->video->id);
-//        } catch (TestException $exception) {
-//            $this->assertCount(1, Video::all());
-//        }
-//    }
 
-//    public function testDelete()
-//    {
-//        /** @var Video $video */
-//        $video = factory(Video::class)->create();
-//
-//        $id = $video->id;
-//
-//        $response = $this->json(
-//            'DELETE',
-//            route('api.videos.destroy', ['video' => $id])
-//        );
-//
-//        $response->assertStatus(204);
-//
-//        $response = $this->json(
-//            'GET',
-//            route('api.videos.show', ['video' => $id])
-//        );
-//
-//        $response->assertStatus(404);
-//
-//
-//        $this->assertNull(Video::find($id));
-//        $this->assertNotNull(Video::withTrashed()->find($id));
-//    }
+    public function testRollbackUpdate()
+    {
+        $controller = \Mockery::mock(VideoController::class)
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+
+        $controller
+            ->shouldReceive('validate')
+            ->withAnyArgs()
+            ->andReturn($this->sendData);
+
+        $controller
+            ->shouldReceive('rulesUpdate')
+            ->withAnyArgs()
+            ->andReturn([]);
+
+        $controller
+            ->shouldReceive('handleRelations')
+            ->once()
+            ->andThrow(new TestException());
+
+        $request = \Mockery::mock(Request::class);
+
+        try {
+            $controller->update($request, $this->video->id);
+        } catch (TestException $exception) {
+            $this->assertCount(1, Video::all());
+        }
+    }
+
     public function testDestroy()
     {
         $response = $this->json('DELETE',route('videos.destroy',['video'=>$this->video->id]));
