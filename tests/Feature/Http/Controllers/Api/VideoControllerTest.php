@@ -123,7 +123,10 @@ class VideoControllerTest extends TestCase
         $genre->categories()->sync($category->id);
         $data = [
             [
-                'send_data' => $this->sendData + ['opened' => false,'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'send_data' => $this->sendData +
+                    ['opened' => false,
+                        'categories_id' => [$category->id],
+                        'genres_id' => [$genre->id]],
                 'test_data' => $this->sendData + ['opened' => false],
             ],
             [
@@ -172,6 +175,9 @@ class VideoControllerTest extends TestCase
             ->andThrow(new TestException());
 
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')
+            ->withAnyArgs()
+            ->andReturnNull();
 
         try {
             $controller->store($request);
@@ -202,6 +208,9 @@ class VideoControllerTest extends TestCase
             ->andThrow(new TestException());
 
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')
+            ->withAnyArgs()
+            ->andReturnNull();
 
         try {
             $controller->update($request, $this->video->id);
