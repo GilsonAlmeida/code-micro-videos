@@ -10,3 +10,6 @@ $factory->define(Genre::class, function (Faker $faker) {
             'name'=> $faker->colorName
     ];
 });
+
+
+
